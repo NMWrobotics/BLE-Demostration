@@ -12,7 +12,7 @@
 DHTesp dhtSensor;
 
 double DHT_temp;
-double DHT_humidity;
+//double DHT_humidity;
 
 // Timer variables
 unsigned long lastTime = 0;
@@ -30,8 +30,8 @@ BLEDescriptor DHT11TemperatureDescriptor(BLEUUID((uint16_t)0x2902));
 
 
 // Humidity Characteristic and Descriptor
-BLECharacteristic DHT11HumidityCharacteristics("ca73b3ba-39f6-4ab3-91ae-186dc9577d99", BLECharacteristic::PROPERTY_NOTIFY);
-BLEDescriptor DHT11HumidityDescriptor(BLEUUID((uint16_t)0x2903));
+//BLECharacteristic DHT11HumidityCharacteristics("ca73b3ba-39f6-4ab3-91ae-186dc9577d99", BLECharacteristic::PROPERTY_NOTIFY);
+//BLEDescriptor DHT11HumidityDescriptor(BLEUUID((uint16_t)0x2903));
 
 //Setup callbacks onConnect and onDisconnect
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -68,9 +68,9 @@ void setup() {
 
 
   // Humidity
-  DHT11Service->addCharacteristic(&DHT11HumidityCharacteristics);
-  DHT11HumidityDescriptor.setValue("DHT11 humidity");
-  DHT11HumidityCharacteristics.addDescriptor(new BLE2902());
+  //DHT11Service->addCharacteristic(&DHT11HumidityCharacteristics);
+  //DHT11HumidityDescriptor.setValue("DHT11 humidity");
+  //DHT11HumidityCharacteristics.addDescriptor(new BLE2902());
   
   // Start the service
   DHT11Service->start();
@@ -89,7 +89,7 @@ void loop() {
       TempAndHumidity data = dhtSensor.getTempAndHumidity();
   
       DHT_temp =  data.temperature;
-      DHT_humidity = data.humidity;
+      //DHT_humidity = data.humidity;
       
   
       //Notify temperature reading from BME sensor
@@ -103,14 +103,14 @@ void loop() {
       Serial.print(" ºC");
       
       //Notify humidity reading from BME
-      static char humidityTemp[6];
-      dtostrf(DHT_humidity, 6, 2, humidityTemp);
+      //static char humidityTemp[6];
+      //dtostrf(DHT_humidity, 6, 2, humidityTemp);
       //Set humidity Characteristic value and notify connected client
-      DHT11HumidityCharacteristics.setValue(humidityTemp);
-      DHT11HumidityCharacteristics.notify();   
-      Serial.print(" - Humidity: ");
-      Serial.print(DHT_humidity);
-      Serial.println(" %");
+      //DHT11HumidityCharacteristics.setValue(humidityTemp);
+     // DHT11HumidityCharacteristics.notify();   
+      //Serial.print(" - Humidity: ");
+      //Serial.print(DHT_humidity);
+      //Serial.println(" %");
       
       lastTime = millis();
     }

@@ -14,7 +14,7 @@ static BLEUUID DHT11ServiceUUID("91bad492-b950-4226-aa2b-4ede9fa42f59");
 static BLEUUID DHT11TemperatureCharacteristicsUUID("cba1d466-344c-4be3-ab3f-189f80dd7518");
 
 // Humidity Characteristic
-static BLEUUID DHT11HumidityCharacteristicsUUID("ca73b3ba-39f6-4ab3-91ae-186dc9577d99");
+//static BLEUUID DHT11HumidityCharacteristicsUUID("ca73b3ba-39f6-4ab3-91ae-186dc9577d99");
 
 //Flags stating if should begin connecting and if the connection is up
 static boolean doConnect = false;
@@ -25,7 +25,7 @@ static BLEAddress *pServerAddress;
  
 //Characteristicd that we want to read
 static BLERemoteCharacteristic* temperatureCharacteristic;
-static BLERemoteCharacteristic* humidityCharacteristic;
+//static BLERemoteCharacteristic* humidityCharacteristic;
 
 //Activate notify
 const uint8_t notificationOn[] = {0x1, 0x0};
@@ -39,11 +39,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 //Variables to store temperature and humidity
 char* temperatureChar;
-char* humidityChar;
+//char* humidityChar;
 
 //Flags to check whether new temperature and humidity readings are available
 boolean newTemperature = false;
-boolean newHumidity = false;
+//boolean newHumidity = false;
 
 //When the BLE Server sends a new temperature reading with the notify property
 static void temperatureNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, 
@@ -54,13 +54,13 @@ static void temperatureNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharact
 }
 
 //When the BLE Server sends a new humidity reading with the notify property
-static void humidityNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, 
-                                    uint8_t* pData, size_t length, bool isNotify) {
+//static void humidityNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, 
+//                                    uint8_t* pData, size_t length, bool isNotify) {
   //store humidity value
-  humidityChar = (char*)pData;
-  newHumidity = true;
-  Serial.print(newHumidity);
-}
+//  humidityChar = (char*)pData;
+//  newHumidity = true;
+//  Serial.print(newHumidity);
+//}
 
 
 //Connect to the BLE Server that has the name, Service, and Characteristics
@@ -81,9 +81,10 @@ bool connectToServer(BLEAddress pAddress) {
  
   // Obtain a reference to the characteristics in the service of the remote BLE server.
   temperatureCharacteristic = pRemoteService->getCharacteristic(DHT11TemperatureCharacteristicsUUID);
-  humidityCharacteristic = pRemoteService->getCharacteristic(DHT11HumidityCharacteristicsUUID);
+  //humidityCharacteristic = pRemoteService->getCharacteristic(DHT11HumidityCharacteristicsUUID);
 
-  if (temperatureCharacteristic == nullptr || humidityCharacteristic == nullptr) {
+ // if (temperatureCharacteristic == nullptr || humidityCharacteristic == nullptr) {
+      if (temperatureCharacteristic == nullptr) {
     Serial.print("Failed to find our characteristic UUID");
     return false;
   }
@@ -91,7 +92,7 @@ bool connectToServer(BLEAddress pAddress) {
  
   //Assign callback functions for the Characteristics
   temperatureCharacteristic->registerForNotify(temperatureNotifyCallback);
-  humidityCharacteristic->registerForNotify(humidityNotifyCallback);
+ // humidityCharacteristic->registerForNotify(humidityNotifyCallback);
   return true;
 }
 
@@ -128,23 +129,23 @@ void printReadings(){
   Serial.print("C");
 
   //display humidity 
-  display.setTextSize(1);
-  display.setCursor(0, 35);
-  display.print("Humidity: ");
-  display.setTextSize(2);
-  display.setCursor(0, 45);
-  display.print(humidityChar);
-  display.print("%");
+  //display.setTextSize(1);
+  //display.setCursor(0, 35);
+  //display.print("Humidity: ");
+  //display.setTextSize(2);
+  //display.setCursor(0, 45);
+  //display.print(humidityChar);
+  //display.print("%");
   display.display();
-  Serial.print(" Humidity:");
-  Serial.print(humidityChar); 
-  Serial.println("%");
+  //Serial.print(" Humidity:");
+  //Serial.print(humidityChar); 
+  //Serial.println("%");
 }
 
 void setup() {
   //OLED display setup
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3C for 128x32
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
@@ -180,7 +181,7 @@ void loop() {
       Serial.println("We are now connected to the BLE Server.");
       //Activate the Notify property of each Characteristic
       temperatureCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902))->writeValue((uint8_t*)notificationOn, 2, true);
-      humidityCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902))->writeValue((uint8_t*)notificationOn, 2, true);
+     // humidityCharacteristic->getDescriptor(BLEUUID((uint16_t)0x2902))->writeValue((uint8_t*)notificationOn, 2, true);
       connected = true;
     } else {
       Serial.println("We have failed to connect to the server; Restart your device to scan for nearby BLE server again.");
@@ -188,9 +189,10 @@ void loop() {
     doConnect = false;
   }
   //if new temperature readings are available, print in the OLED
-  if (newTemperature && newHumidity){
+  //if (newTemperature && newHumidity){
+  if (newTemperature){
     newTemperature = false;
-    newHumidity = false;
+    //newHumidity = false;
     printReadings();
   }
   delay(1000); // Delay a second between loops.
