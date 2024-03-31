@@ -2,14 +2,7 @@
 #include <Wire.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
- 
-#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
-#endif
-#if !defined(CONFIG_BT_SPP_ENABLED)
-#error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip.
-#endif
-
+#include <String.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -28,7 +21,10 @@ String device_name = "ESP32-BT-Slave";
  
 // Bluetooth Received Byte & Message Buffer Array
 String RxBuffer = "";
-char RxByte;
+
+// Timer variables
+unsigned long lastTime = 0;
+unsigned long timerDelay = 3000;
  
 void setup() {
     //OLED display setup
@@ -37,11 +33,12 @@ void setup() {
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
+
   display.clearDisplay();
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setTextColor(WHITE,0);
   display.setCursor(0,25);
-  display.print("Bl Client");
+  display.print("Bluetooth Classic Client");
   display.display();
 
   Serial.begin(115200);
@@ -57,22 +54,33 @@ void setup() {
  
 void loop() {
   // Read The Received Bytes & Add Them To Message (RxBuffer) Array
-  if (SerialBT.available()){
-    RxByte = SerialBT.read();
-    if (RxByte != '\n'){
-      RxBuffer += String(RxByte);
+  char RxByte;
+  RxBuffer = ""; // Reset buffer for next message
+  while(true){
+    if (SerialBT.available()) {
+      RxByte = SerialBT.read();
+      if (RxByte != '\n') {
+        RxBuffer += String(RxByte);
+      } else {
+        display.clearDisplay();  
+      // display temperature
+      display.setTextSize(1);
+      display.setCursor(0,0);
+      display.print("Temperature: ");
+      display.setTextSize(2);
+      display.setCursor(0,10);
+      display.print(RxBuffer);
+      display.setTextSize(1);
+      display.cp437(true);
+      display.write(167);
+      display.setTextSize(2);
+      Serial.println(RxBuffer);
+      display.print("C");
+      display.display();
+      delay(1000);
+      break;
+      }
     }
-    else{
-      RxBuffer = "";
-    }
-    
   }
-  Serial.println(RxBuffer);
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(WHITE,0);
-  display.setCursor(0,25);
-  display.print(RxBuffer);
-  display.display();
-  delay(3000);
+
 }

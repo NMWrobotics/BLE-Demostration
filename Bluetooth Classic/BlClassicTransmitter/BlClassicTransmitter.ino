@@ -78,6 +78,7 @@ void loop() {
     //Notify temperature reading from BME sensor
     static char temperatureTemp[6];
     dtostrf(DHT_temp, 6, 2, temperatureTemp);
+    temperatureTemp[5] = '\n';
     SerialBT.println(temperatureTemp);
     Serial.println(temperatureTemp);
     lastTime = millis();
